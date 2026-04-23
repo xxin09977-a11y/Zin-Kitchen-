@@ -350,8 +350,7 @@ export default function App() {
               className="relative z-10 space-y-8 flex flex-col items-center"
             >
               <div className="relative">
-                <ChefHat size={80} strokeWidth={1} className="text-accent animate-bounce-slow" />
-                <span className="absolute -top-4 -right-4 text-4xl animate-bounce">🐯</span>
+               
               </div>
               
               <div className="space-y-4">
