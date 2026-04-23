@@ -20,9 +20,24 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
   const [imageUrl, setImageUrl] = useState(recipe?.imageUrl || '');
   const [unitPickerIndex, setUnitPickerIndex] = useState<number | null>(null);
   const [focusedIngredientIndex, setFocusedIngredientIndex] = useState<number | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const allRecipes = useLiveQuery(() => db.recipes.toArray(), []);
   
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = 'Title is required';
+    
+    const validIngredients = ingredients.filter(i => i.name.trim() !== '' && i.amount > 0);
+    if (validIngredients.length === 0) newErrors.ingredients = 'Add at least one valid ingredient';
+
+    const validSteps = steps.filter(s => s.trim() !== '');
+    if (validSteps.length === 0) newErrors.steps = 'Add at least one cooking step';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const knownIngredients = useMemo(() => {
     const set = new Set<string>();
     const common = ["Salt", "Pepper", "Olive Oil", "Garlic", "Onion", "Butter", "Water", "Sugar", "Flour", "Eggs", "Milk", "Lemon Juice", "Soy Sauce", "Chicken Breast", "Beef", "Pork", "Rice", "Pasta", "Tomato", "Cheese"];
@@ -49,14 +64,10 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Auto-validation: filter out empty steps or ingredients
+    if (!validateForm()) return;
+
     const validIngredients = ingredients.filter(i => i.name.trim() !== '' && i.amount > 0);
     const validSteps = steps.filter(s => s.trim() !== '');
-
-    if (!title || validIngredients.length === 0 || validSteps.length === 0) {
-      alert('Please fill out all required fields.');
-      return;
-    }
 
     const data: Recipe = {
       title,
@@ -177,16 +188,23 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
                 </label>
               </div>
               <div className="space-y-1.5 flex flex-col justify-center">
-                <div className="glass-dark px-4 py-3 text-sm flex-1 flex items-center border border-white/10 rounded-2xl shadow-xl focus-within:border-accent/40 focus-within:ring-1 focus-within:ring-accent/20 transition-all">
+                <div className={cn(
+                  "glass-dark px-4 py-3 text-sm flex-1 flex items-center border border-white/10 rounded-2xl shadow-xl focus-within:border-accent/40 focus-within:ring-1 focus-within:ring-accent/20 transition-all",
+                  errors.title && "border-red-500/50"
+                )}>
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      if (errors.title) setErrors(prev => ({ ...prev, title: '' }));
+                    }}
                     className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 font-black text-lg placeholder:text-white/20 text-white tracking-tight"
                     placeholder="Enter masterpiece name..."
                     required
                   />
                 </div>
+                {errors.title && <p className="text-[10px] text-red-500 mt-1 px-2">{errors.title}</p>}
               </div>
             </div>
           </div>
@@ -194,17 +212,24 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[3px]">Components</span>
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-[3px]",
+                  errors.ingredients ? "text-red-500" : "text-white/40"
+                )}>Components</span>
                 <div className="h-px w-8 bg-accent/30" />
               </div>
               <button 
                 type="button" 
-                onClick={addIngredient}
+                onClick={() => {
+                   addIngredient();
+                   if (errors.ingredients) setErrors(prev => ({ ...prev, ingredients: '' }));
+                }}
                 className="text-[10px] font-black text-accent uppercase tracking-widest hover:brightness-125 transition-all bg-accent/10 px-3 py-1 rounded-full border border-accent/20 active:scale-95"
               >
                 + ADD
               </button>
             </div>
+            {errors.ingredients && <p className="text-[10px] text-red-500 mt-1 px-4">{errors.ingredients}</p>}
             
             <Reorder.Group axis="y" values={ingredients} onReorder={setIngredients} className="space-y-1">
               {ingredients.map((ing, idx) => (
@@ -321,7 +346,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
                   <button 
                     type="button" 
                     onClick={() => removeIngredient(idx)}
-                    className="text-red-500/40 hover:text-red-500 transition-colors duration-150 p-1 shrink-0 bg-white/5 rounded-md active:scale-90"
+                    className="ml-4 text-red-500/40 hover:text-red-500 transition-colors duration-150 p-1 shrink-0 bg-white/5 rounded-md active:scale-90"
                   >
                     <Trash2 size={14} strokeWidth={2.5} />
                   </button>
@@ -332,15 +357,22 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
 
           <div className="space-y-4 pb-10">
             <div className="flex justify-between items-center border-b border-white/20 pb-2">
-              <label className="text-[10px] font-black text-white/60 uppercase tracking-[2px]">Steps</label>
+              <label className={cn(
+                  "text-[10px] font-black uppercase tracking-[2px]",
+                  errors.steps ? "text-red-500" : "text-white/60"
+              )}>Steps</label>
               <button 
                 type="button" 
-                onClick={addStep}
+                onClick={() => {
+                   addStep();
+                   if (errors.steps) setErrors(prev => ({ ...prev, steps: '' }));
+                }}
                 className="text-[10px] font-black text-accent uppercase tracking-widest hover:opacity-100 transition-opacity bg-accent/10 px-2 py-1 rounded-md active:scale-95 transition-all"
               >
                 + ADD
               </button>
             </div>
+            {errors.steps && <p className="text-[10px] text-red-500 mt-1">{errors.steps}</p>}
 
             <Reorder.Group axis="y" values={steps} onReorder={setSteps} className="space-y-2">
               {steps.map((step, idx) => (

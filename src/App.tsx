@@ -156,6 +156,13 @@ export default function App() {
     root.style.setProperty('--bg-color', theme.bg);
     root.style.setProperty('--grad1-color', theme.grad1);
     root.style.setProperty('--grad2-color', theme.grad2);
+    
+    // Toggle light class
+    if (settings.themeId === 'light') {
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+    }
 
     // Apply global font scaling (affects all rem-based units)
     const activeFontSize = FONT_SIZES.find(f => f.id === settings.fontSize) || FONT_SIZES[0];
@@ -271,17 +278,6 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 px-6 md:px-12 py-8 max-w-7xl mx-auto w-full">
         <div className="flex justify-between items-end mb-8 relative">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-               <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black uppercase tracking-[2px] rounded-md border border-accent/20">The Archive</span>
-            </div>
-            <h2 className="text-4xl font-black tracking-tighter text-white leading-none">Your Collection</h2>
-            <p className="text-[10px] font-black uppercase tracking-[4px] text-white/40">Curated Culinary Gallery</p>
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <span className="text-[10px] font-black uppercase tracking-[3px] text-accent">{recipes?.length || 0}</span>
-            <span className="text-[8px] font-black uppercase tracking-[2px] text-white/30">Total items</span>
-          </div>
           <div className="absolute -bottom-4 left-0 right-0 h-px bg-gradient-to-r from-accent/40 via-white/5 to-transparent shadow-[0_1px_0_rgba(255,255,255,0.02)]" />
         </div>
 
@@ -347,11 +343,8 @@ export default function App() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="relative z-10 space-y-8 flex flex-col items-center"
+              className="relative z-10 space-y-4 flex flex-col items-center"
             >
-              <div className="relative">
-               
-              </div>
               
               <div className="space-y-4">
                 <div className="space-y-1">

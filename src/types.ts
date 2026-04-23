@@ -9,6 +9,7 @@ export interface Theme {
 
 export const THEMES: Theme[] = [
   { id: 'noir', name: 'Original', accent: '#e5e7eb', bg: '#000000', grad1: '#111111', grad2: '#000000' },
+  { id: 'light', name: 'Alabaster', accent: '#3b82f6', bg: '#f8fafc', grad1: '#ffffff', grad2: '#f1f5f9' },
   { id: 'social-x', name: 'Social X', accent: '#1d9bf0', bg: '#000000', grad1: '#15202b', grad2: '#000000' },
   { id: 'meta-blue', name: 'Social Meta', accent: '#0064e0', bg: '#020617', grad1: '#071025', grad2: '#020617' },
   { id: 'tiktok', name: 'Tokyo Pop', accent: '#ff0050', bg: '#010101', grad1: '#00f2ea', grad2: '#010101' },
