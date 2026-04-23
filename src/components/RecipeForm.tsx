@@ -143,23 +143,23 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
         onClick={(e) => e.stopPropagation()} 
         className="glass-dark w-full max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-[24px] relative"
       >
-        <div className="flex justify-between items-center mb-6 sticky top-0 bg-transparent backdrop-blur-xl -mx-6 px-6 py-4 z-20 border-b border-white/5">
-          <div className="flex items-center gap-3">
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-transparent backdrop-blur-xl -mx-6 px-6 py-2 z-20 border-b border-white/5">
+          <div className="flex items-center gap-2">
              <button 
               onClick={onClose} 
-              className="p-2 hover:bg-white/10 rounded-full transition-all duration-150 text-white/50 hover:text-white border border-transparent hover:border-white/10 active:scale-90"
+              className="p-1.5 hover:bg-white/10 rounded-full transition-all duration-150 text-white/50 hover:text-white border border-transparent hover:border-white/10 active:scale-90"
             >
-              <X size={18} />
+              <X size={14} />
             </button>
-            <div className="space-y-0.5">
-              <h2 className="text-xl font-black tracking-tight text-white">{recipe ? 'Edit Masterpiece' : 'New Creation'}</h2>
-              <p className="text-[8px] font-black uppercase tracking-[2px] text-accent">Curator Input</p>
+            <div className="space-y-0">
+              <h2 className="text-base font-black tracking-tight text-white">{recipe ? 'Edit Masterpiece' : 'New Creation'}</h2>
+              <p className="text-[7px] font-black uppercase tracking-[1px] text-accent">Curator Input</p>
             </div>
           </div>
           <button 
             type="submit"
             form="recipe-form"
-            className="px-6 py-2 bg-white text-black rounded-full text-xs font-black uppercase tracking-[2.5px] hover:bg-accent hover:text-white transition-all duration-150 shadow-xl active:scale-90"
+            className="px-4 py-1.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-[2px] hover:bg-accent hover:text-white transition-all duration-150 shadow-xl active:scale-90"
           >
             CONFIRM
           </button>
@@ -171,7 +171,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
                <span className="text-[10px] font-black uppercase tracking-[3px] text-white/40">Visual Identity</span>
                <div className="h-px flex-1 bg-white/5" />
              </div>
-             <div className="grid grid-cols-[80px_1fr] gap-4">
+             <div className="grid grid-cols-[64px_1fr] gap-4">
               <div className="space-y-1.5">
                 <label className="relative flex flex-col items-center justify-center w-full aspect-square bg-white/5 rounded-2xl border-2 border-dashed border-white/10 hover:border-accent group/img transition-all cursor-pointer overflow-hidden shadow-inner">
                   {imageUrl ? (
@@ -189,7 +189,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
               </div>
               <div className="space-y-1.5 flex flex-col justify-center">
                 <div className={cn(
-                  "glass-dark px-4 py-3 text-sm flex-1 flex items-center border border-white/10 rounded-2xl shadow-xl focus-within:border-accent/40 focus-within:ring-1 focus-within:ring-accent/20 transition-all",
+                  "glass-dark px-3 py-2.5 text-sm flex-1 flex items-center border border-white/10 rounded-2xl shadow-xl focus-within:border-accent/40 focus-within:ring-1 focus-within:ring-accent/20 transition-all",
                   errors.title && "border-red-500/50"
                 )}>
                   <input
@@ -199,7 +199,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
                       setTitle(e.target.value);
                       if (errors.title) setErrors(prev => ({ ...prev, title: '' }));
                     }}
-                    className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 font-black text-lg placeholder:text-white/20 text-white tracking-tight"
+                    className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 font-black text-base placeholder:text-white/20 text-white tracking-tight"
                     placeholder="Enter masterpiece name..."
                     required
                   />
@@ -288,7 +288,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ recipe, onClose, onSave 
                         step="0.1"
                         value={ing.amount || ''}
                         onChange={(e) => updateIngredient(idx, 'amount', parseFloat(e.target.value))}
-                        className="w-10 bg-white/10 rounded-md px-1 py-0.5 text-accent font-black text-[11px] outline-none border border-white/20 focus:border-accent/60 text-right shadow-sm"
+                        className="w-14 bg-white/10 rounded-md px-1 py-0.5 text-accent font-black text-[11px] outline-none border border-white/20 focus:border-accent/60 text-right shadow-sm"
                         placeholder="0"
                       />
                       

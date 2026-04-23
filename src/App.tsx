@@ -433,20 +433,22 @@ export default function App() {
                     <Palette size={14} className="text-white/40" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Atmosphere</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2">
                     {THEMES.map(theme => (
                       <button
                         key={theme.id}
                         onClick={() => setSettings(s => ({ ...s, themeId: theme.id }))}
                         className={cn(
-                          "w-10 h-10 rounded-xl border-2 transition-all active:scale-90",
+                          "flex-1 py-3 rounded-xl border text-[9px] font-black transition-all shadow-sm active:scale-95 text-center flex items-center justify-center gap-2",
                           settings.themeId === theme.id 
-                            ? "border-white scale-110 shadow-lg" 
-                            : "border-transparent opacity-40 hover:opacity-100"
+                            ? "bg-accent/20 border-accent/40 text-accent" 
+                            : "border-white/5 bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
                         )}
-                        style={{ backgroundColor: theme.accent }}
                         title={theme.name}
-                      />
+                      >
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.accent }} />
+                        {theme.name.toUpperCase()}
+                      </button>
                     ))}
                   </div>
                 </div>
