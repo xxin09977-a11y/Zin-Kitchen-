@@ -202,15 +202,22 @@ const CookingTimer = memo(({ initialMinutes, T, onBack }: { initialMinutes: numb
   const [editMins, setEditMins] = useState<string | null>(null);
   const [editSecs, setEditSecs] = useState<string | null>(null);
   const timerRef = useRef<any>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const oscRef = useRef<OscillatorNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const beepIntervalRef = useRef<any>(null);
 
   useEffect(() => {
-    // Standard pleasant alarm sound
-    audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-    audioRef.current.loop = true;
     return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
+      if (beepIntervalRef.current) clearInterval(beepIntervalRef.current);
+      if (oscRef.current) {
+        try {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+        } catch(e) {}
+      }
+      if (audioCtxRef.current) audioCtxRef.current.close();
     };
   }, []);
 
@@ -234,10 +241,39 @@ const CookingTimer = memo(({ initialMinutes, T, onBack }: { initialMinutes: numb
 
   useEffect(() => {
     if (isAlarmPlaying) {
-      audioRef.current?.play().catch(e => console.log("Audio play failed:", e));
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      if (!oscRef.current) {
+        oscRef.current = ctx.createOscillator();
+        gainRef.current = ctx.createGain();
+        oscRef.current.type = 'sine';
+        oscRef.current.frequency.value = 880;
+        oscRef.current.connect(gainRef.current);
+        gainRef.current.connect(ctx.destination);
+        gainRef.current.gain.value = 0;
+        oscRef.current.start();
+      }
+
+      let toggleBeep = false;
+      beepIntervalRef.current = setInterval(() => {
+        if (gainRef.current && ctx) {
+          gainRef.current.gain.setValueAtTime(toggleBeep ? 0 : 1, ctx.currentTime);
+          toggleBeep = !toggleBeep;
+        }
+      }, 500);
+
     } else {
-      audioRef.current?.pause();
-      if (audioRef.current) audioRef.current.currentTime = 0;
+      if (beepIntervalRef.current) {
+        clearInterval(beepIntervalRef.current);
+        beepIntervalRef.current = null;
+      }
+      if (gainRef.current && audioCtxRef.current) {
+        gainRef.current.gain.setValueAtTime(0, audioCtxRef.current.currentTime);
+      }
     }
   }, [isAlarmPlaying]);
 
@@ -616,11 +652,49 @@ const HandwritingTitle = memo(({ text, color }: { text: string, color: string })
   );
 });
 
+const getInitialTheme = () => {
+  const saved = localStorage.getItem("zins-kitchen-theme");
+  return saved || "dark";
+};
+
+const getInitialRecipes = () => {
+  const saved = localStorage.getItem("zins-kitchen-recipes");
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch(e) {}
+  }
+  return BASE_RECIPES;
+};
+
+const getInitialRecent = () => {
+  const saved = localStorage.getItem("zins-kitchen-recent");
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch(e) {}
+  }
+  return [];
+};
+
 export default function KitchenApp() {
-  const [themeId, setThemeId] = useState("dark");
+  const [themeId, setThemeId] = useState(getInitialTheme);
   const [cat, setCat] = useState("All");
-  const [recipes, setRecipes] = useState(BASE_RECIPES);
-  const [recentlyOpened, setRecentlyOpened] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<any[]>(getInitialRecipes);
+  const [recentlyOpened, setRecentlyOpened] = useState<any[]>(getInitialRecent);
+
+  useEffect(() => {
+    localStorage.setItem("zins-kitchen-theme", themeId);
+  }, [themeId]);
+
+  useEffect(() => {
+    localStorage.setItem("zins-kitchen-recipes", JSON.stringify(recipes));
+  }, [recipes]);
+
+  useEffect(() => {
+    localStorage.setItem("zins-kitchen-recent", JSON.stringify(recentlyOpened));
+  }, [recentlyOpened]);
+
   const [selected, setSelected] = useState<any>(null);
   const [actionRecipe, setActionRecipe] = useState<any>(null);
   const [showActionMenu, setShowActionMenu] = useState(false);
